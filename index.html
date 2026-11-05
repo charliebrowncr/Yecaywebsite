@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Yecay · Golfo &amp; Selva</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="images/logo-mark.png">
+<link rel="stylesheet" href="_ds/classical-2b9a4656-8dcc-4d47-8d3d-afb5d2459be8/styles.css">
+<script src="_ds/classical-2b9a4656-8dcc-4d47-8d3d-afb5d2459be8/_ds_bundle.js"></script>
+<style>
+:root {
+  --color-bg: #2a2a28; --color-surface: #3a3a37; --color-text: #ece6da;
+  --color-accent: #c4ab78; --color-accent-2: #c4ab78;
+  --color-divider: color-mix(in srgb, #ece6da 16%, transparent);
+  --color-accent-100: #3b3529; --color-accent-400: #d6c299; --color-accent-600: #b0965f;
+  --color-accent-700: #d3bf94; --color-accent-800: #e6d8b8;
+  --color-neutral-100: #383835; --color-neutral-200: #343432; --color-neutral-700: #454542;
+  --color-neutral-800: #e0dbd0; --color-neutral-900: #1b1b1a;
+}
+html { scroll-behavior: smooth; color-scheme: dark; }
+body { margin: 0; background: var(--color-bg); color: var(--color-text); text-wrap: pretty; }
+a { color: var(--color-accent-700); }
+a:hover { color: var(--color-accent-800); }
+*, *::before, *::after { box-sizing: border-box; }
+.input { background: transparent; color: var(--color-text); }
+select.input option { background: var(--color-bg); }
+:where(button.tag) { border: 1px solid transparent; background: transparent; }
+</style>
+</helmet>
+
+<nav class="nav" style="position: sticky; top: 0; z-index: 20; background: var(--color-bg); padding-inline: clamp(20px, 5vw, 72px); flex-wrap: wrap; row-gap: 8px;">
+  <a href="#inicio" style="display: flex; align-items: center; gap: 12px; margin-right: auto; color: var(--color-text);">
+    <img src="images/logo-mark.png" alt="" style="height: 44px; width: auto; display: block;">
+    <span class="nav-brand" style="margin: 0; font-size: 22px; white-space: nowrap;">Yëcay</span>
+  </a>
+  <a href="#experiencias" style="white-space: nowrap;">{{ t.navExp }}</a>
+  <a href="#paquetes" style="white-space: nowrap;">{{ t.navPaq }}</a>
+  <a href="#galeria" style="white-space: nowrap;">{{ t.navGal }}</a>
+  <a href="#llegar" style="white-space: nowrap;">{{ t.navLlegar }}</a>
+  <div role="group" aria-label="Idioma / Language" style="display: flex; gap: 4px;">
+    <button type="button" onClick="{{ setEs }}" class="{{ esCls }}" aria-pressed="{{ isEs }}" style="cursor: pointer; font: inherit; font-size: 12px; padding: 4px 8px;">ES</button>
+    <button type="button" onClick="{{ setEn }}" class="{{ enCls }}" aria-pressed="{{ isEn }}" style="cursor: pointer; font: inherit; font-size: 12px; padding: 4px 8px;">EN</button>
+  </div>
+  <a href="#consulta" class="btn btn-primary" style="color: var(--color-accent-700); white-space: nowrap;">{{ t.navCta }}</a>
+</nav>
+
+<header id="inicio" style="position: relative; min-height: min(92vh, 900px); display: flex; flex-direction: column; justify-content: flex-end; background: var(--color-neutral-200) url(images/hero.jpg) center / cover no-repeat;">
+  <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, color-mix(in srgb, var(--color-neutral-900) 20%, transparent) 0%, color-mix(in srgb, var(--color-neutral-900) 10%, transparent) 40%, color-mix(in srgb, var(--color-neutral-900) 85%, transparent) 100%);"></div>
+  <div style="position: relative; max-width: 1200px; width: 100%; margin: 0 auto; padding: 120px clamp(20px, 5vw, 72px) 40px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px;">
+    <img src="images/logo.png" alt="Yëcay · Golfo &amp; Selva" style="width: clamp(120px, 14vw, 170px); height: auto; display: block;">
+    <h1 style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(40px, 6vw, 84px); line-height: 1.04; letter-spacing: -0.01em; margin: 0; max-width: 16ch;">{{ t.heroTitle }}</h1>
+  </div>
+  <form onSubmit="{{ onSearch }}" style="position: relative; max-width: 1056px; width: calc(100% - 2 * clamp(20px, 5vw, 72px)); margin: 0 auto 48px; background: var(--color-bg); border: 1px solid var(--color-divider); border-radius: var(--radius-md); padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; align-items: end;">
+    <div class="field"><label for="s-llegada">{{ t.llegada }}</label><input class="input" id="s-llegada" type="date" name="llegada" min="{{ today }}" value="{{ f.llegada }}" onChange="{{ onField }}"></div>
+    <div class="field"><label for="s-salida">{{ t.salida }}</label><input class="input" id="s-salida" type="date" name="salida" min="{{ minSalida }}" value="{{ f.salida }}" onChange="{{ onField }}"></div>
+    <div class="field"><label for="s-personas">{{ t.personas }}</label><input class="input" id="s-personas" type="number" min="1" max="40" name="personas" value="{{ f.personas }}" onChange="{{ onField }}"></div>
+    <div class="field"><label for="s-tipo">{{ t.experiencia }}</label>
+      <select class="input" id="s-tipo" name="tipo" value="{{ f.tipo }}" onChange="{{ onField }}">
+        <sc-for list="{{ tipos }}" as="o" hint-placeholder-count="9"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary" style="min-height: 36px; color: var(--color-accent-700);">{{ t.buscar }}</button>
+  </form>
+</header>
+
+<main style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 72px);">
+
+  <section style="padding: 112px 0 96px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px;">
+    <h2 style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(34px, 4.4vw, 56px); line-height: 1.1; margin: 0; max-width: 20ch;">{{ t.introTitle }}</h2>
+    <p style="font-size: 18px; line-height: 1.75; margin: 0; max-width: 60ch; color: color-mix(in srgb, var(--color-text) 82%, transparent);">{{ t.introSub }}</p>
+    <a href="#consulta" class="btn btn-primary" style="color: var(--color-accent-700); min-height: 40px; padding-inline: 24px;">{{ t.navCta }}</a>
+  </section>
+
+  <section style="padding: 0 0 112px;">
+    <h2 style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; margin: 0 0 40px; text-align: center;">{{ t.inclTitle }}</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); border-top: 1px solid var(--color-divider); border-bottom: 1px solid var(--color-divider);">
+      <sc-for list="{{ incluido }}" as="x" hint-placeholder-count="4">
+        <div style="padding: 32px 24px; border-left: 1px solid var(--color-divider); display: flex; flex-direction: column; gap: 12px;">
+          <span style="font-family: var(--font-heading); font-size: 20px; color: var(--color-accent); font-feature-settings: 'tnum' 1;">{{ x.n }}</span>
+          <h3 style="font-family: var(--font-heading); font-weight: 400; font-size: 24px; line-height: 1.15; margin: 0;">{{ x.title }}</h3>
+          <p style="margin: 0; font-size: 15px; line-height: 1.65; color: color-mix(in srgb, var(--color-text) 78%, transparent);">{{ x.body }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="experiencias" style="padding: 0 0 112px; scroll-margin-top: 80px;">
+    <div style="display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 40px;">
+      <h2 style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(34px, 4.4vw, 56px); line-height: 1.05; margin: 0; max-width: 16ch;">{{ t.expTitle }}</h2>
+      <p style="margin: 0; max-width: 42ch; font-size: 16px; line-height: 1.7; color: color-mix(in srgb, var(--color-text) 78%, transparent);">{{ t.expSub }}</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 20px;">
+      <sc-for list="{{ mundos }}" as="m" hint-placeholder-count="4">
+        <button type="button" onClick="{{ m.pick }}" style="all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 16px;">
+          <div class="plate" style="width: 100%; aspect-ratio: 3 / 4; background: var(--color-neutral-200) url({{ m.img }}) center / cover no-repeat;"></div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <h3 style="font-family: var(--font-heading); font-weight: 400; font-size: 28px; line-height: 1.1; margin: 0;">{{ m.title }}</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.6; color: color-mix(in srgb, var(--color-text) 78%, transparent);">{{ m.body }}</p>
+            <span style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); border-bottom: 1px solid var(--color-accent); align-self: flex-start; padding-bottom: 2px;">{{ t.verPaquetes }}</span>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+</main>
+
+<section style="position: relative; min-height: min(88vh, 760px); display: flex; align-items: center; overflow: hidden; background: var(--color-neutral-900);">
+  <sc-for list="{{ corcovado }}" as="c" hint-placeholder-count="1">
+    <div role="img" aria-label="{{ c.alt }}" style="position: absolute; inset: 0; opacity: {{ c.op }}; transition: opacity 1.6s ease; background: var(--color-neutral-900) url({{ c.src }}) center / cover no-repeat;"></div>
+  </sc-for>
+  <div style="position: absolute; inset: 0; background: color-mix(in srgb, var(--color-neutral-900) 55%, transparent);"></div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 1;">
+    <div style="display: flex; gap: 8px;">
+      <sc-for list="{{ corcovado }}" as="c" hint-placeholder-count="4">
+        <button type="button" onClick="{{ c.go }}" aria-label="{{ c.alt }}" style="width: 28px; height: 2px; padding: 0; border: 0; cursor: pointer; background: {{ c.dot }};"></button>
+      </sc-for>
+    </div>
+    <span style="font-size: 11px; color: color-mix(in srgb, var(--color-text) 75%, transparent);">Parque Nacional Corcovado · {{ creditoActual }}</span>
+  </div>
+  <div style="position: relative; max-width: 1200px; width: 100%; margin: 0 auto; padding: 96px clamp(20px, 5vw, 72px); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px;">
+    <span style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(96px, 14vw, 180px); line-height: 0.9; color: var(--color-accent); font-feature-settings: 'tnum' 1;">5%</span>
+    <p style="font-family: var(--font-heading); font-size: clamp(24px, 2.6vw, 34px); line-height: 1.25; margin: 0; max-width: 26ch;">{{ t.bioLabel }}</p>
+    <p style="font-size: 16px; line-height: 1.7; margin: 0; max-width: 56ch; color: color-mix(in srgb, var(--color-text) 86%, transparent);">{{ t.lugar1 }}</p>
+  </div>
+</section>
+
+<main style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 72px);">
+
+  <section id="paquetes" style="padding: 112px 0; scroll-margin-top: 80px;">
+    <div style="display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap;">
+      <div>
+        <span style="display: block; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); margin-bottom: 12px;">{{ t.navPaq }}</span>
+        <h2 style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(34px, 4.4vw, 56px); line-height: 1.05; margin: 0;">{{ t.paqTitle }}</h2>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" onClick="{{ prev }}" class="btn btn-secondary btn-icon" aria-label="Anterior"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+        <button type="button" onClick="{{ next }}" class="btn btn-secondary btn-icon" aria-label="Siguiente"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+      </div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px;">
+      <sc-for list="{{ chips }}" as="c" hint-placeholder-count="9">
+        <button type="button" onClick="{{ c.pick }}" class="{{ c.cls }}" aria-pressed="{{ c.on }}" style="cursor: pointer; font: inherit; font-size: 13px; padding: 5px 12px;">{{ c.label }}</button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ nochesLabel }}" hint-placeholder-val="{{ false }}">
+      <p style="margin: 16px 0 0; font-size: 14px; color: color-mix(in srgb, var(--color-text) 72%, transparent); font-feature-settings: 'tnum' 1;">{{ nochesLabel }}</p>
+    </sc-if>
+
+    <div ref="{{ trackRef }}" style="display: grid; grid-auto-flow: column; grid-auto-columns: min(360px, 84%); gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory; margin-top: 32px; padding-bottom: 16px; scrollbar-width: thin;">
+      <sc-for list="{{ paquetes }}" as="p" hint-placeholder-count="4">
+        <article class="card" style="padding: 0; gap: 0; overflow: hidden; scroll-snap-align: start;">
+          <div class="plate" style="aspect-ratio: 4 / 3; border-width: 0 0 6px; outline: 0; background: var(--color-neutral-200) url({{ p.img }}) center / cover no-repeat;" role="img" aria-label="{{ p.nombre }}"></div>
+          <div style="padding: 24px; display: flex; flex-direction: column; gap: 12px; flex: 1;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; align-items: center;">
+              <span class="card-kicker" style="font-size: 12px; color: var(--color-accent-700);">{{ p.tipoLabel }}</span>
+              <span style="font-size: 13px; color: color-mix(in srgb, var(--color-text) 72%, transparent); font-feature-settings: 'tnum' 1;">{{ p.duracion }}</span>
+            </div>
+            <h3 class="card-title" style="font-size: 26px; font-weight: 400; margin: 0;">{{ p.nombre }}</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.6; color: color-mix(in srgb, var(--color-text) 80%, transparent); flex: 1;">{{ p.desc }}</p>
+            <div style="display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--color-divider);">
+              <div>
+                <span style="display: block; font-size: 12px; color: color-mix(in srgb, var(--color-text) 72%, transparent);">{{ t.desde }}</span>
+                <span style="font-family: var(--font-heading); font-size: 30px; line-height: 1; font-feature-settings: 'tnum' 1;">{{ p.precio }}</span>
+                <span style="font-size: 12px; color: color-mix(in srgb, var(--color-text) 72%, transparent);"> {{ t.porPersona }}</span>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" onClick="{{ p.consultar }}" class="btn btn-secondary">{{ t.consultar }}</button>
+                <button type="button" onClick="{{ p.reservar }}" class="btn btn-primary" style="color: var(--color-accent-700);">{{ t.reservar }}</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+    <sc-if value="{{ sinResultados }}" hint-placeholder-val="{{ false }}">
+      <p style="margin: 28px 0 0; font-size: 16px;">{{ t.sinResultados }} <a href="#consulta">{{ t.escribenos }}</a></p>
+    </sc-if>
+  </section>
+
+  <hr style="margin: 0; border: 0; height: 1px; background: var(--color-divider);">
+
+  <section id="galeria" style="padding: 112px 0; scroll-margin-top: 80px;">
+    <h2 style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(34px, 4.4vw, 56px); line-height: 1.05; margin: 0; text-align: center;">{{ t.galTitle }}</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); grid-auto-rows: 240px; grid-auto-flow: dense; gap: 20px; margin-top: 48px;">
+      <sc-for list="{{ galeria }}" as="g" hint-placeholder-count="8">
+        <button type="button" onClick="{{ g.open }}" class="plate" title="{{ g.caption }}" aria-label="{{ g.caption }}" style="grid-row: {{ g.span }}; cursor: zoom-in; padding: 0; width: 100%; height: 100%; display: flex; align-items: flex-end; background: var(--color-neutral-200) url({{ g.img }}) center / cover no-repeat;">
+          <span style="font: inherit; font-size: 13px; padding: 4px 10px; margin: 10px; background: var(--color-bg); color: var(--color-text); border-radius: var(--radius-sm);">{{ g.caption }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+
+  <hr style="margin: 0; border: 0; height: 1px; background: var(--color-divider);">
+
+  <section id="llegar" style="padding: 112px 0; scroll-margin-top: 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 48px clamp(24px, 5vw, 96px); align-items: center;">
+    <figure class="plate" style="margin: 0; width: 100%; aspect-ratio: 4 / 5; background: var(--color-neutral-200) url(images/llegada.jpg) center / cover no-repeat;" role="img" aria-label="{{ t.navLlegar }}"></figure>
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <span style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700);">{{ t.navLlegar }}</span>
+      <h2 style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(34px, 4.4vw, 52px); line-height: 1.05; margin: 0;">{{ t.llegarTitle }}</h2>
+      <p style="font-size: 16px; line-height: 1.75; margin: 0; max-width: 52ch; text-align: justify; hyphens: auto; color: color-mix(in srgb, var(--color-text) 80%, transparent);">{{ t.llegarBody }}</p>
+      <a href="#consulta" class="btn btn-secondary" style="align-self: flex-start;">{{ t.llegarCta }}</a>
+    </div>
+  </section>
+
+  <hr style="margin: 0; border: 0; height: 1px; background: var(--color-divider);">
+
+  <section id="consulta" style="padding: 112px 0; scroll-margin-top: 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 48px clamp(24px, 5vw, 96px); align-items: start;">
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <span style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700);">{{ t.consultaKicker }}</span>
+      <h2 style="font-family: var(--font-heading); font-weight: 400; font-size: clamp(34px, 4.4vw, 52px); line-height: 1.05; margin: 0;">{{ t.consultaTitle }}</h2>
+      <p style="font-size: 16px; line-height: 1.7; margin: 0; max-width: 44ch; color: color-mix(in srgb, var(--color-text) 80%, transparent);">{{ t.consultaSub }}</p>
+    </div>
+    <sc-if value="{{ enviado }}" hint-placeholder-val="{{ false }}">
+      <div class="card" style="padding: 32px; gap: 12px; border-color: var(--color-accent);">
+        <h3 style="font-family: var(--font-heading); font-weight: 400; font-size: 28px; margin: 0;">{{ graciasTitle }}</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6;">{{ graciasSub }}</p>
+        <button type="button" onClick="{{ reset }}" class="btn btn-ghost" style="align-self: flex-start;">{{ t.otra }}</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ mostrarForm }}" hint-placeholder-val="{{ true }}">
+      <form onSubmit="{{ onSubmit }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px;">
+        <div class="field"><label for="c-nombre">{{ t.nombre }}</label><input class="input" id="c-nombre" name="nombre" required value="{{ f.nombre }}" onChange="{{ onField }}"></div>
+        <div class="field"><label for="c-email">Email</label><input class="input" id="c-email" type="email" name="email" required value="{{ f.email }}" onChange="{{ onField }}"></div>
+        <div class="field"><label for="c-tel">{{ t.telefono }}</label><input class="input" id="c-tel" type="tel" name="telefono" value="{{ f.telefono }}" onChange="{{ onField }}"></div>
+        <div class="field"><label for="c-tipo">{{ t.experiencia }}</label>
+          <select class="input" id="c-tipo" name="tipo" value="{{ f.tipo }}" onChange="{{ onField }}">
+            <sc-for list="{{ tipos }}" as="o" hint-placeholder-count="9"><option value="{{ o.key }}">{{ o.label }}</option></sc-for>
+          </select>
+        </div>
+        <div class="field"><label for="c-llegada">{{ t.llegada }}</label><input class="input" id="c-llegada" type="date" name="llegada" min="{{ today }}" required value="{{ f.llegada }}" onChange="{{ onField }}"></div>
+        <div class="field"><label for="c-salida">{{ t.salida }}</label><input class="input" id="c-salida" type="date" name="salida" min="{{ minSalida }}" required value="{{ f.salida }}" onChange="{{ onField }}"></div>
+        <div class="field"><label for="c-personas">{{ t.personas }}</label><input class="input" id="c-personas" type="number" min="1" max="40" name="personas" value="{{ f.personas }}" onChange="{{ onField }}"></div>
+        <div class="field"><label for="c-presupuesto">{{ t.presupuesto }}</label>
+          <select class="input" id="c-presupuesto" name="presupuesto" value="{{ f.presupuesto }}" onChange="{{ onField }}">
+            <sc-for list="{{ presupuestos }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for>
+          </select>
+        </div>
+        <div class="field" style="grid-column: 1 / -1;"><label for="c-paquete">{{ t.paquete }}</label><input class="input" id="c-paquete" name="paquete" placeholder="{{ t.opcional }}" value="{{ f.paquete }}" onChange="{{ onField }}"></div>
+        <div class="field" style="grid-column: 1 / -1;"><label for="c-msg">{{ t.mensaje }}</label><textarea class="input" id="c-msg" name="mensaje" rows="4" placeholder="{{ t.mensajePh }}" value="{{ f.mensaje }}" onChange="{{ onField }}"></textarea></div>
+        <div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <button type="submit" class="btn btn-primary" disabled="{{ enviando }}" style="min-height: 40px; padding-inline: 24px; color: var(--color-accent-700);">{{ botonLabel }}</button>
+          <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: var(--color-accent-800);">{{ error }}</span></sc-if>
+        </div>
+      </form>
+    </sc-if>
+  </section>
+</main>
+
+<footer style="border-top: 1px solid var(--color-divider);">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 64px clamp(20px, 5vw, 72px) 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; font-size: 14px; color: color-mix(in srgb, var(--color-text) 72%, transparent);">
+    <img src="images/logo.png" alt="Yëcay · Golfo &amp; Selva" style="width: 110px; height: auto; display: block;">
+    <span>Pacífico Sur, Costa Rica</span>
+    <a href="#consulta">{{ t.navCta }}</a>
+  </div>
+</footer>
+
+<sc-if value="{{ pago }}" hint-placeholder-val="{{ false }}">
+  <div class="dialog-backdrop" onClick="{{ cerrarPagoFondo }}" style="position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 20px; background: color-mix(in srgb, var(--color-neutral-900) 80%, transparent); overflow-y: auto;">
+    <div class="dialog" role="dialog" aria-modal="true" aria-label="{{ t.pagoTitle }}" style="width: min(560px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; background: var(--color-bg); border: 1px solid var(--color-divider); border-radius: var(--radius-md); padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
+        <div>
+          <span style="display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); margin-bottom: 8px;">{{ t.pagoTitle }}</span>
+          <h3 class="dialog-title" style="font-family: var(--font-heading); font-weight: 400; font-size: 30px; line-height: 1.1; margin: 0;">{{ pago.nombre }}</h3>
+        </div>
+        <button type="button" onClick="{{ cerrarPago }}" class="btn btn-ghost btn-icon" aria-label="{{ t.cerrar }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+      </div>
+
+      <sc-if value="{{ pagado }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border: 1px solid var(--color-accent); border-radius: var(--radius-md);">
+          <h4 style="font-family: var(--font-heading); font-weight: 400; font-size: 24px; margin: 0;">{{ t.pagoOk }}</h4>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6;">{{ pagoOkSub }}</p>
+          <button type="button" onClick="{{ cerrarPago }}" class="btn btn-secondary" style="align-self: flex-start;">{{ t.cerrar }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ mostrarPagoForm }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 14px;">
+          <div class="field"><label for="p-llegada">{{ t.llegada }}</label><input class="input" id="p-llegada" type="date" name="llegada" min="{{ today }}" value="{{ f.llegada }}" onChange="{{ onField }}"></div>
+          <div class="field"><label for="p-salida">{{ t.salida }}</label><input class="input" id="p-salida" type="date" name="salida" min="{{ minSalida }}" value="{{ f.salida }}" onChange="{{ onField }}"></div>
+          <div class="field"><label for="p-personas">{{ t.personas }}</label><input class="input" id="p-personas" type="number" min="1" max="40" name="personas" value="{{ f.personas }}" onChange="{{ onField }}"></div>
+          <div class="field"><label for="p-nombre">{{ t.nombre }}</label><input class="input" id="p-nombre" name="nombre" value="{{ f.nombre }}" onChange="{{ onField }}"></div>
+          <div class="field" style="grid-column: span 2;"><label for="p-email">Email</label><input class="input" id="p-email" type="email" name="email" value="{{ f.email }}" onChange="{{ onField }}"></div>
+        </div>
+
+        <div role="radiogroup" aria-label="{{ t.pagoModo }}" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <sc-for list="{{ modos }}" as="m" hint-placeholder-count="2">
+            <button type="button" role="radio" aria-checked="{{ m.on }}" onClick="{{ m.pick }}" class="{{ m.cls }}" style="cursor: pointer; font: inherit; text-align: left; padding: 14px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 4px;">
+              <span style="font-size: 13px;">{{ m.label }}</span>
+              <span style="font-family: var(--font-heading); font-size: 24px; line-height: 1; font-feature-settings: 'tnum' 1;">{{ m.monto }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px; padding: 12px 0; border-top: 1px solid var(--color-divider); border-bottom: 1px solid var(--color-divider); font-feature-settings: 'tnum' 1;">
+          <span>{{ resumenPago }}</span>
+          <span>{{ t.total }} {{ totalPago }}</span>
+        </div>
+
+        <sc-if value="{{ pagoError }}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0; font-size: 14px; color: var(--color-accent-800);">{{ pagoError }}</p>
+        </sc-if>
+        <div ref="{{ pagoRef }}" style="min-height: 50px; background: var(--color-text); border-radius: var(--radius-md); padding: 12px;"></div>
+        <p style="margin: 0; font-size: 12px; line-height: 1.5; color: color-mix(in srgb, var(--color-text) 70%, transparent);">{{ t.pagoNota }}</p>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ lightbox }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeLightbox }}" style="position: fixed; inset: 0; z-index: 50; background: color-mix(in srgb, var(--color-neutral-900) 92%, transparent); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 4vw; cursor: zoom-out;">
+    <div class="plate" role="img" aria-label="{{ lightbox.caption }}" style="width: min(1100px, 100%); height: 78vh; background: var(--color-neutral-700) url({{ lightbox.img }}) center / contain no-repeat;"></div>
+    <span style="color: var(--color-text); font-size: 15px;">{{ lightbox.caption }}</span>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+// Destino de las consultas. Tras activar FormSubmit, reemplaza el correo por el código que te envían para ocultarlo también del código fuente.
+const INBOX = 'charliebrowncr@icloud.com';
+
+// === PayPal ===
+// Pega aquí tu Client ID de PayPal (ver GUIA-PAYPAL.md). 'sb' = modo de prueba (sandbox), no cobra dinero real.
+const PAYPAL_CLIENT_ID = 'sb';
+const DEPOSITO = 0.3; // 30 % de depósito
+
+const TIPOS = {
+  todas: ['Todas', 'All'], retiros: ['Retiros', 'Retreats'], todo: ['Todo incluido', 'All inclusive'],
+  aventura: ['Aventura', 'Adventure'], parejas: ['Parejas', 'Couples'], familias: ['Familias', 'Families'],
+  pesca: ['Pesca', 'Fishing'], yoga: ['Yoga / bienestar', 'Yoga / wellness'], grupos: ['Grupos privados', 'Private groups'],
+};
+
+// Paquetes: edita precios (USD por persona), noches, textos e imágenes aquí
+const PAQUETES = [
+  { tipo: 'retiros', noches: 5, precio: 950, img: 'images/retiro.jpg',
+    es: { n: 'Retiro en la selva', d: 'Para grupos que buscan desconectarse: espacios abiertos al bosque, cocina local y días sin prisa junto al golfo.' },
+    en: { n: 'Rainforest retreat', d: 'For groups ready to disconnect: open-air spaces in the forest, local cooking and unhurried days by the gulf.' } },
+  { tipo: 'todo', noches: 4, precio: 1100, img: 'images/todo-incluido.jpg',
+    es: { n: 'Golfo & Selva todo incluido', d: 'Comidas, traslados y una actividad guiada cada día. Solo llegas.' },
+    en: { n: 'Gulf & Rainforest all inclusive', d: 'Meals, transfers and a guided activity every day. Just arrive.' } },
+  { tipo: 'aventura', noches: 3, precio: 690, img: 'images/aventura.jpg',
+    es: { n: 'Aventura Pacífico Sur', d: 'Kayak entre manglares, senderos en bosque primario, cascadas y delfines con guías locales.' },
+    en: { n: 'South Pacific adventure', d: 'Kayaking through mangroves, primary-forest trails, waterfalls and dolphins with local guides.' } },
+  { tipo: 'parejas', noches: 3, precio: 780, img: 'images/parejas.jpg',
+    es: { n: 'Escapada en pareja', d: 'Cabaña privada, cena junto al agua y atardeceres en bote.' },
+    en: { n: 'Couples getaway', d: 'A private cabin, dinner by the water and sunsets from a boat.' } },
+  { tipo: 'familias', noches: 4, precio: 620, img: 'images/familias.jpg',
+    es: { n: 'Selva en familia', d: 'Playas tranquilas, monos y tucanes, y caminatas cortas con guía para todas las edades.' },
+    en: { n: 'Family rainforest', d: 'Calm beaches, monkeys and toucans, and short guided walks for every age.' } },
+  { tipo: 'pesca', noches: 4, precio: 1350, img: 'images/pesca.jpg',
+    es: { n: 'Pesca en el golfo', d: 'Pesca deportiva con capitanes locales en uno de los golfos más ricos del Pacífico.' },
+    en: { n: 'Gulf fishing', d: 'Sport fishing with local captains in one of the richest gulfs on the Pacific.' } },
+  { tipo: 'yoga', noches: 5, precio: 890, img: 'images/yoga.jpg',
+    es: { n: 'Yoga y bienestar', d: 'Yoga al amanecer frente al mar, meditación en el bosque y cocina saludable.' },
+    en: { n: 'Yoga & wellness', d: 'Sunrise yoga facing the sea, forest meditation and healthy cooking.' } },
+  { tipo: 'grupos', noches: 3, precio: 540, img: 'images/grupos.jpg',
+    es: { n: 'Grupos privados', d: 'Celebraciones, equipos o amigos: el itinerario a la medida de tu grupo.' },
+    en: { n: 'Private groups', d: 'Celebrations, teams or friends: an itinerary tailored to your group.' } },
+];
+
+const MUNDOS = [
+  { tipo: 'aventura', img: 'images/aventura.jpg', es: ['Golfo', 'Kayak, snorkel y delfines en aguas tranquilas.'], en: ['Gulf', 'Kayaking, snorkeling and dolphins in calm water.'] },
+  { tipo: 'retiros', img: 'images/selva.jpg', es: ['Selva', 'Senderos en bosque primario, cascadas y vida silvestre.'], en: ['Rainforest', 'Primary-forest trails, waterfalls and wildlife.'] },
+  { tipo: 'yoga', img: 'images/yoga.jpg', es: ['Bienestar', 'Yoga, masajes y tiempo para descansar.'], en: ['Wellness', 'Yoga, massage and time to rest.'] },
+  { tipo: 'pesca', img: 'images/pesca.jpg', es: ['Pesca', 'Salidas con capitanes locales.'], en: ['Fishing', 'Trips with local captains.'] },
+];
+
+// Fotos de Corcovado (carpeta images/)
+const CORCOVADO = [
+  { src: 'images/corcovado-1.jpg', alt: 'Costa y selva al atardecer' },
+  { src: 'images/corcovado-2.jpg', alt: 'Bosque primario' },
+  { src: 'images/corcovado-3.jpg', alt: 'Danta en la playa' },
+  { src: 'images/corcovado-4.jpg', alt: 'Recorrido en bote por el río' },
+  { src: 'images/corcovado-5.jpg', alt: 'Mono araña' },
+  { src: 'images/corcovado-6.jpg', alt: 'Tucán' },
+  { src: 'images/corcovado-7.jpg', alt: 'Rana de ojos rojos' },
+];
+
+const GALERIA = [
+  { img: 'images/kayak.jpg', es: 'Kayak en el golfo', en: 'Kayaking the gulf', tall: true },
+  { img: 'images/delfines.jpg', es: 'Delfines', en: 'Dolphins' },
+  { img: 'images/cascada.jpg', es: 'Cascada en la selva', en: 'Rainforest waterfall' },
+  { img: 'images/selva.jpg', es: 'Bosque primario', en: 'Primary forest', tall: true },
+  { img: 'images/pesca-2.jpg', es: 'Pesca deportiva', en: 'Sport fishing' },
+  { img: 'images/yoga-2.jpg', es: 'Yoga frente al mar', en: 'Yoga by the sea' },
+  { img: 'images/atardecer.jpg', es: 'Atardecer', en: 'Sunset' },
+  { img: 'images/cabanas.jpg', es: 'Las cabañas', en: 'The cabins' },
+];
+
+const INCLUIDO = {
+  es: [['Llegada sin preocupaciones', 'Coordinamos tu traslado desde el aeropuerto o San José.'], ['Cocina local', 'Comidas con ingredientes de la zona y pesca del día.'], ['Experiencias diarias', 'Una actividad guiada cada día en el golfo o la selva.'], ['A tu medida', 'Armamos el itinerario según tu grupo e intereses.']],
+  en: [['Easy arrival', 'We arrange your transfer from the airport or San José.'], ['Local cooking', 'Meals with regional ingredients and the catch of the day.'], ['Daily experiences', 'A guided activity every day on the gulf or in the forest.'], ['Made for you', 'We plan the itinerary around your group and interests.']],
+};
+
+const T = {
+  es: {
+    navExp: 'Experiencias', navPaq: 'Paquetes', navGal: 'Galería', navLlegar: 'Cómo llegar', navCta: 'Consultar fechas',
+    heroTitle: 'Un refugio entre el golfo y la selva',
+    introTitle: 'Un mundo extraordinario en el Pacífico Sur.',
+    introSub: 'Despierta con el sonido del bosque y el golfo frente a tu cabaña. Pasa la mañana en kayak, la tarde bajo una cascada y la noche alrededor de una mesa con sabores de la zona. Nosotros nos encargamos del resto.',
+    inclTitle: 'Incluido en tu estadía',
+    expTitle: 'Deja que la curiosidad te guíe', expSub: 'Cuatro maneras de vivir Yëcay. Elige una y te mostramos los paquetes.', verPaquetes: 'Ver paquetes',
+    bioLabel: 'de la biodiversidad del mundo vive en esta zona.',
+    lugar1: 'Yëcay está en el Pacífico Sur de Costa Rica, donde el bosque primario baja hasta la orilla del golfo.',
+    paqTitle: 'Elige tu estadía', desde: 'Desde', porPersona: 'por persona', consultar: 'Consultar',
+    llegada: 'Llegada', salida: 'Salida', personas: 'Personas', experiencia: 'Experiencia', buscar: 'Ver disponibilidad',
+    sinResultados: 'No hay paquetes publicados de ese tipo.', escribenos: 'Escríbenos y lo armamos a tu medida.',
+    galTitle: 'Las actividades y el lugar',
+    llegarTitle: 'Tu viaje empieza con una bienvenida',
+    llegarBody: 'Llega a San José y continúa por carretera o en vuelo doméstico hacia el sur. Coordinamos tu traslado para que el camino sea parte de la experiencia.',
+    llegarCta: 'Coordinar mi llegada',
+    consultaKicker: 'Consulta', consultaTitle: 'Cuéntanos tus fechas',
+    consultaSub: 'Respondemos personalmente con disponibilidad y una propuesta para tu grupo.',
+    nombre: 'Nombre', telefono: 'Teléfono / WhatsApp', presupuesto: 'Presupuesto por persona (USD)', paquete: 'Paquete de interés', opcional: 'Opcional',
+    mensaje: 'Mensaje', mensajePh: 'Celebraciones, dietas, preguntas…', enviar: 'Enviar consulta', enviando: 'Enviando…',
+    gracias: 'Gracias', graciasSub: 'Recibimos tu consulta. Te escribiremos pronto a', otra: 'Enviar otra consulta',
+    error: 'No se pudo enviar. Intenta de nuevo en un momento.', fechas: 'La salida debe ser después de la llegada.',
+    noche: 'noche', noches: 'noches', pers: 'persona(s)',
+    reservar: 'Reservar', pagoTitle: 'Reservar y pagar', cerrar: 'Cerrar', pagoModo: 'Forma de pago',
+    deposito: 'Depósito 30 %', pagoTotal: 'Pago total', total: 'Total', aPagar: 'A pagar ahora',
+    pagoFaltan: 'Completa fechas, nombre y email antes de pagar.', pagoCarga: 'No se pudo cargar PayPal. Revisa tu conexión.',
+    pagoFallo: 'El pago no se completó. Intenta de nuevo.', pagoOk: '¡Reserva confirmada!',
+    pagoOkSub: 'Recibimos tu pago. Te enviaremos los detalles a', pagoNota: 'Pago seguro con PayPal o tarjeta. Confirmamos disponibilidad por email en menos de 24 horas; si no hay espacio en tus fechas, te devolvemos el 100 %.',
+  },
+  en: {
+    navExp: 'Experiences', navPaq: 'Packages', navGal: 'Gallery', navLlegar: 'Getting here', navCta: 'Check dates',
+    heroTitle: 'A sanctuary between the gulf and the rainforest',
+    introTitle: 'An extraordinary world on the South Pacific.',
+    introSub: 'Wake to the sound of the forest with the gulf in front of your cabin. Spend the morning kayaking, the afternoon under a waterfall and the evening around a table of local flavors. We take care of the rest.',
+    inclTitle: 'Included in your stay',
+    expTitle: 'Let curiosity lead', expSub: 'Four ways to live Yëcay. Pick one and we’ll show you the packages.', verPaquetes: 'See packages',
+    bioLabel: 'of the world’s biodiversity lives in this region.',
+    lugar1: 'Yëcay sits on Costa Rica’s South Pacific, where primary forest reaches down to the shore of the gulf.',
+    paqTitle: 'Choose your stay', desde: 'From', porPersona: 'per person', consultar: 'Inquire',
+    llegada: 'Arrival', salida: 'Departure', personas: 'Guests', experiencia: 'Experience', buscar: 'Check availability',
+    sinResultados: 'No packages of that type yet.', escribenos: 'Write to us and we’ll tailor one.',
+    galTitle: 'The activities and the place',
+    llegarTitle: 'Your journey begins with a welcome',
+    llegarBody: 'Arrive in San José and continue south by road or domestic flight. We arrange your transfer so the trip becomes part of the experience.',
+    llegarCta: 'Plan my arrival',
+    consultaKicker: 'Inquiry', consultaTitle: 'Tell us your dates',
+    consultaSub: 'We reply personally with availability and a proposal for your group.',
+    nombre: 'Name', telefono: 'Phone / WhatsApp', presupuesto: 'Budget per person (USD)', paquete: 'Package of interest', opcional: 'Optional',
+    mensaje: 'Message', mensajePh: 'Celebrations, dietary needs, questions…', enviar: 'Send inquiry', enviando: 'Sending…',
+    gracias: 'Thank you', graciasSub: 'We received your inquiry and will write soon to', otra: 'Send another inquiry',
+    error: 'Could not send. Please try again in a moment.', fechas: 'Departure must be after arrival.',
+    noche: 'night', noches: 'nights', pers: 'guest(s)',
+    reservar: 'Book', pagoTitle: 'Book and pay', cerrar: 'Close', pagoModo: 'Payment option',
+    deposito: '30% deposit', pagoTotal: 'Pay in full', total: 'Total', aPagar: 'Due now',
+    pagoFaltan: 'Fill in dates, name and email before paying.', pagoCarga: 'Could not load PayPal. Check your connection.',
+    pagoFallo: 'The payment did not go through. Please try again.', pagoOk: 'Booking confirmed!',
+    pagoOkSub: 'We received your payment. We will send details to', pagoNota: 'Secure payment with PayPal or card. We confirm availability by email within 24 hours; if your dates are unavailable, we refund 100%.',
+  },
+};
+const PRESUPUESTOS = ['—', '< $500', '$500 – $1,000', '$1,000 – $2,000', '> $2,000'];
+
+const iso = (d) => d.toISOString().slice(0, 10);
+const addDays = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return iso(d); };
+
+class Component extends DCLogic {
+  state = {
+    lang: (typeof navigator !== 'undefined' && /^en/i.test(navigator.language)) ? 'en' : 'es',
+    slide: 0, pago: null, pagado: null, pagoModo: 'deposito', pagoError: '', filtro: 'todas', lightbox: null, enviado: false, enviando: false, error: '',
+    f: { llegada: '', salida: '', personas: 2, tipo: 'todas', nombre: '', email: '', telefono: '', presupuesto: '—', paquete: '', mensaje: '' },
+  };
+  trackRef = React.createRef();
+  pagoRef = React.createRef();
+
+  componentDidUpdate() {
+    const { pago, pagado } = this.state;
+    if (pago && !pagado && this.pagoRef.current && this._ppEl !== this.pagoRef.current) {
+      this._ppEl = this.pagoRef.current;
+      this.renderPayPal(this._ppEl);
+    }
+    if (!pago) this._ppEl = null;
+  }
+
+  loadPayPal() {
+    if (window.paypal) return Promise.resolve(window.paypal);
+    if (this._ppLoad) return this._ppLoad;
+    this._ppLoad = new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(PAYPAL_CLIENT_ID) + '&currency=USD&intent=capture';
+      s.onload = () => res(window.paypal);
+      s.onerror = () => { this._ppLoad = null; rej(new Error('sdk')); };
+      document.head.appendChild(s);
+    });
+    return this._ppLoad;
+  }
+
+  montos() {
+    const { pago, f, pagoModo } = this.state;
+    const p = PAQUETES[pago.idx];
+    const total = p.precio * Math.max(1, Number(f.personas) || 1);
+    const cobrar = pagoModo === 'total' ? total : Math.round(total * DEPOSITO * 100) / 100;
+    return { p, total, cobrar };
+  }
+
+  validarPago() {
+    const { f, lang } = this.state;
+    const ok = f.llegada && f.salida && f.salida > f.llegada && f.nombre.trim() && /\S+@\S+\.\S+/.test(f.email);
+    return ok ? '' : T[lang].pagoFaltan;
+  }
+
+  renderPayPal(el) {
+    this.loadPayPal().then((paypal) => {
+      if (!el.isConnected) return;
+      el.innerHTML = '';
+      paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
+        onClick: (data, actions) => {
+          const err = this.validarPago();
+          this.setState({ pagoError: err });
+          return err ? actions.reject() : actions.resolve();
+        },
+        createOrder: (data, actions) => {
+          const { p, cobrar } = this.montos();
+          const { f, pagoModo } = this.state;
+          return actions.order.create({
+            purchase_units: [{
+              description: `Yecay · ${p.es.n} · ${f.llegada} → ${f.salida} · ${f.personas} pers. · ${pagoModo === 'total' ? 'Pago total' : 'Depósito'}`.slice(0, 127),
+              amount: { currency_code: 'USD', value: cobrar.toFixed(2) },
+            }],
+          });
+        },
+        onApprove: async (data, actions) => {
+          const det = await actions.order.capture();
+          const { p, total, cobrar } = this.montos();
+          const { f, pagoModo, lang } = this.state;
+          this.setState({ pagado: { id: det.id } });
+          fetch('https://formsubmit.co/ajax/' + INBOX, {
+            method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              _subject: `PAGO RECIBIDO Yecay: ${p.es.n} · ${f.llegada} → ${f.salida} · $${cobrar.toFixed(2)}`,
+              _template: 'table', _captcha: 'false', _replyto: f.email,
+              'ID PayPal': det.id, Paquete: p.es.n, Nombre: f.nombre, Email: f.email, 'Teléfono / WhatsApp': f.telefono || '—',
+              Llegada: f.llegada, Salida: f.salida, Personas: f.personas,
+              'Forma de pago': pagoModo === 'total' ? 'Pago total' : 'Depósito 30 %',
+              Pagado: '$' + cobrar.toFixed(2), 'Total estadía': '$' + total.toFixed(2), Idioma: lang.toUpperCase(),
+            }),
+          }).catch(() => {});
+        },
+        onError: () => this.setState({ pagoError: T[this.state.lang].pagoFallo }),
+      }).render(el);
+    }).catch(() => this.setState({ pagoError: T[this.state.lang].pagoCarga }));
+  }
+
+  componentDidMount() {
+    this._key = (e) => { if (e.key === 'Escape') this.setState({ lightbox: null, pago: null, pagado: null }); };
+    window.addEventListener('keydown', this._key);
+    this._timer = setInterval(() => this.setState((s) => ({ slide: (s.slide + 1) % CORCOVADO.length })), 6000);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._key); clearInterval(this._timer); }
+
+  scrollTo(id) {
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 72, behavior: 'smooth' });
+  }
+  slide(dir) {
+    const el = this.trackRef.current;
+    if (el) el.scrollBy({ left: dir * Math.min(el.clientWidth * 0.8, 400), behavior: 'smooth' });
+  }
+
+  async submit(e) {
+    e.preventDefault();
+    const { f, lang } = this.state, t = T[lang];
+    if (f.llegada && f.salida && f.salida <= f.llegada) return this.setState({ error: t.fechas });
+    this.setState({ enviando: true, error: '' });
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/' + INBOX, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: `Consulta Yecay: ${TIPOS[f.tipo][0]} · ${f.llegada} → ${f.salida} · ${f.personas} pers.`,
+          _template: 'table', _captcha: 'false', _replyto: f.email,
+          Nombre: f.nombre, Email: f.email, 'Teléfono / WhatsApp': f.telefono || '—',
+          Llegada: f.llegada, Salida: f.salida, Personas: f.personas,
+          Experiencia: TIPOS[f.tipo][0], Paquete: f.paquete || '—', Presupuesto: f.presupuesto,
+          Mensaje: f.mensaje || '—', Idioma: lang.toUpperCase(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === 'false' || data.success === false) throw new Error('error');
+      this.setState({ enviando: false, enviado: true });
+    } catch (err) {
+      this.setState({ enviando: false, error: t.error });
+    }
+  }
+
+  pagoVals(t, lang) {
+    const { pago, pagado, pagoModo, pagoError, f } = this.state;
+    const cerrar = () => this.setState({ pago: null, pagado: null, pagoError: '' });
+    if (!pago) return { pago: null, cerrarPago: cerrar };
+    const { p, total } = this.montos();
+    const fmt = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const dep = Math.round(total * DEPOSITO * 100) / 100;
+    return {
+      pago: { nombre: p[lang].n }, pagado, mostrarPagoForm: !pagado, pagoError, pagoRef: this.pagoRef,
+      cerrarPago: cerrar,
+      cerrarPagoFondo: (e) => { if (e.target === e.currentTarget) cerrar(); },
+      modos: [['deposito', t.deposito, dep], ['total', t.pagoTotal, total]].map(([k, label, m]) => ({
+        label, monto: fmt(m), on: String(pagoModo === k),
+        cls: pagoModo === k ? 'tag tag-outline' : 'tag tag-neutral',
+        pick: () => this.setState({ pagoModo: k }),
+      })),
+      resumenPago: `${fmt(p.precio)} × ${f.personas} ${t.pers}`,
+      totalPago: fmt(total),
+      pagoOkSub: `${t.pagoOkSub} ${f.email}.`,
+    };
+  }
+
+  renderVals() {
+    const { lang, filtro, f, lightbox, enviado, enviando, error } = this.state;
+    const t = T[lang], L = lang === 'es' ? 0 : 1;
+    const today = iso(new Date());
+    const setF = (patch) => this.setState((s) => {
+      const nf = { ...s.f, ...patch };
+      if (patch.llegada && (!nf.salida || nf.salida <= patch.llegada)) nf.salida = addDays(patch.llegada, 3);
+      return { f: nf, error: '' };
+    });
+    const pick = (k) => { this.setState((s) => ({ filtro: k, f: { ...s.f, tipo: k } })); this.scrollTo('paquetes'); };
+
+    let nochesLabel = '';
+    if (f.llegada && f.salida && f.salida > f.llegada) {
+      const n = Math.round((new Date(f.salida) - new Date(f.llegada)) / 864e5);
+      nochesLabel = `${f.llegada} → ${f.salida} · ${n} ${n === 1 ? t.noche : t.noches} · ${f.personas} ${t.pers}`;
+    }
+    const lista = PAQUETES.filter((p) => filtro === 'todas' || p.tipo === filtro);
+
+    return {
+      t, today, f, nochesLabel, trackRef: this.trackRef,
+      corcovado: CORCOVADO.map((c, i) => ({
+        src: c.src, alt: c.alt, op: i === this.state.slide ? 1 : 0,
+        dot: i === this.state.slide ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-text) 40%, transparent)',
+        go: () => this.setState({ slide: i }),
+      })),
+      creditoActual: CORCOVADO[this.state.slide].alt,
+      minSalida: f.llegada ? addDays(f.llegada, 1) : today,
+      isEs: String(lang === 'es'), isEn: String(lang === 'en'),
+      esCls: lang === 'es' ? 'tag tag-outline' : 'tag tag-neutral', enCls: lang === 'en' ? 'tag tag-outline' : 'tag tag-neutral',
+      setEs: () => this.setState({ lang: 'es' }), setEn: () => this.setState({ lang: 'en' }),
+      tipos: Object.keys(TIPOS).map((k) => ({ key: k, label: TIPOS[k][L] })),
+      presupuestos: PRESUPUESTOS,
+      onField: (e) => setF({ [e.target.name]: e.target.value }),
+      onSearch: (e) => { e.preventDefault(); this.setState({ filtro: f.tipo }); this.scrollTo('paquetes'); },
+      incluido: INCLUIDO[lang].map((x, i) => ({ n: String(i + 1).padStart(2, '0'), title: x[0], body: x[1] })),
+      mundos: MUNDOS.map((m) => ({ img: m.img, title: m[lang][0], body: m[lang][1], pick: () => pick(m.tipo) })),
+      chips: Object.keys(TIPOS).map((k) => ({
+        label: TIPOS[k][L], on: String(filtro === k),
+        cls: filtro === k ? 'tag tag-outline' : 'tag tag-neutral',
+        pick: () => this.setState((s) => ({ filtro: k, f: { ...s.f, tipo: k } })),
+      })),
+      prev: () => this.slide(-1), next: () => this.slide(1),
+      paquetes: lista.map((p) => ({
+        img: p.img, tipoLabel: TIPOS[p.tipo][L], nombre: p[lang].n, desc: p[lang].d,
+        duracion: `${p.noches} ${t.noches}`, precio: '$' + p.precio.toLocaleString('en-US'),
+        consultar: () => { setF({ tipo: p.tipo, paquete: p[lang].n }); this.scrollTo('consulta'); },
+        reservar: () => { setF({ tipo: p.tipo, paquete: p[lang].n }); this.setState({ pago: { idx: PAQUETES.indexOf(p) }, pagado: null, pagoError: '' }); },
+      })),
+      ...this.pagoVals(t, lang),
+      sinResultados: lista.length === 0,
+      galeria: GALERIA.map((g) => ({
+        img: g.img, caption: g[lang], span: g.tall ? 'span 2' : 'span 1',
+        open: () => this.setState({ lightbox: { img: g.img, caption: g[lang] } }),
+      })),
+      lightbox, closeLightbox: () => this.setState({ lightbox: null }),
+      enviado, mostrarForm: !enviado, enviando, error,
+      botonLabel: enviando ? t.enviando : t.enviar,
+      graciasTitle: `${t.gracias}, ${f.nombre}.`, graciasSub: `${t.graciasSub} ${f.email}.`,
+      onSubmit: (e) => this.submit(e),
+      reset: () => this.setState((s) => ({ enviado: false, f: { ...s.f, mensaje: '', paquete: '' } })),
+    };
+  }
+}
+
+</script>
+</body>
+</html>
